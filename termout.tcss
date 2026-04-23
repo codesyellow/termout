@@ -1,0 +1,83 @@
+Screen {
+    background: #2e3440;
+    align: center top;
+}
+
+#countdowns {
+    width: 60; 
+    height: 1fr;
+    margin-top: 1;
+    border: none;
+}
+
+Countdown {
+    layout: grid;
+    grid-size: 2;        
+    grid-columns: 22 1fr; 
+    grid-rows: auto auto;
+    background: #2e3440;
+    border: round #ebcb8b;
+    margin: 0 0 1 0;
+    height: auto;    
+    padding: 1;
+}
+
+.btn_group, .btn_group2 {
+    layout: horizontal;
+    width: 20;
+    height: 3;
+}
+
+.btn_group Button, .btn_group2 Button {
+    width: 1fr;
+    min-width: 0;
+    margin: 0;
+}
+
+#btn_start {
+  background: #8fbcbb;
+  color: #2e3440;
+}
+
+#btn_stop, #btn_delete {
+  background: #bf616a;
+  color: #2e3440;
+}
+
+#btn_reset {
+  background: #ebcb8b;
+  color: #2e3440;
+}
+
+
+StartCount {
+    column-span: 1;
+    width: 100%;
+    height: 3;
+    content-align: center middle;
+    color: #ebcb8b;
+    background: #2e3440;
+}
+
+.input_group {
+    column-span: 2;
+    layout: horizontal;
+    height: 3;
+    margin-top: 0;
+}
+
+#input_name { width: 1fr; }
+#input_repeats { width: 8; }
+
+#add {
+    width: 20;
+    margin: 1 0;
+    background: #8fbcbb;
+    color: #2e3440;
+}
+
+#input {
+    width: 20;
+}
+
+.inactive { display: none; }
