@@ -211,7 +211,7 @@ class Countdown(Static):
 class Termout(App):
     last_id = 0
 
-    CSS_PATH = "pydown.tcss"
+    CSS_PATH = "termout.tcss"
     BINDINGS = [
         ("a", "add_countdown", "Add"),
     ]
