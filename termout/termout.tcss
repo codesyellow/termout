@@ -1,3 +1,10 @@
+$bg: #2e3440;
+$fg: #eceff4;
+$primary: #a3be8c;
+$secondary: #4c566a;
+$warning: #bf616a;
+$hover: #ebcb8b;
+
 Screen {
     background: #2e3440;
     align: center top;
@@ -15,8 +22,8 @@ Countdown {
     grid-size: 2;        
     grid-columns: 22 1fr; 
     grid-rows: auto auto;
-    background: #2e3440;
-    border: round #ebcb8b;
+    background: $bg;
+    border: round $primary;
     margin: 0 0 1 0;
     height: auto;    
     padding: 1;
@@ -35,28 +42,47 @@ Countdown {
 }
 
 #btn_start {
-  background: #8fbcbb;
-  color: #2e3440;
+  background: $primary;
+  color: $bg;
+}
+
+#btn_start:hover{
+  background: $hover;
+  color: $bg;
 }
 
 #btn_stop, #btn_delete {
-  background: #bf616a;
-  color: #2e3440;
+  background: $warning;
+  color: $bg;
+}
+
+#btn_stop:hover, #btn_delete:hover {
+  background: $hover;
+  color: $bg;
 }
 
 #btn_reset {
-  background: #ebcb8b;
-  color: #2e3440;
+  background: $secondary;
+  color: $fg;
 }
 
+#btn_reset:hover {
+  color: $bg;
+  background: $hover;
+}
+
+#input_name:hover, #input_repeats:hover {
+  color: $bg;
+  background: $hover;
+}
 
 StartCount {
     column-span: 1;
     width: 100%;
     height: 3;
     content-align: center middle;
-    color: #ebcb8b;
-    background: #2e3440;
+    color: $primary;
+    background: $bg;
 }
 
 .input_group {
@@ -72,8 +98,8 @@ StartCount {
 #add {
     width: 20;
     margin: 1 0;
-    background: #8fbcbb;
-    color: #2e3440;
+    background: $primary;
+    color: $bg;
 }
 
 #input {

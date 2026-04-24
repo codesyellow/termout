@@ -10,9 +10,6 @@ from pathlib import Path
 
 
 class StartCount(Digits):
-    class Started(Message):
-        pass
-
     class Finished(Message):
         pass
 
@@ -48,9 +45,6 @@ class StartCount(Digits):
         return True
 
     def update_time(self) -> None:
-        if not self.has_started:
-            self.post_message(self.Started())
-            self.has_started = True
         if self.time > 0:
             self.time -= 1
             return
@@ -66,6 +60,10 @@ class StartCount(Digits):
 
     def start(self) -> None:
         self.interval.resume()
+
+    def reset(self) -> None:
+        self.interval.pause()
+        self.time = self.default_time
 
     def stop(self) -> None:
         self.interval.pause()
@@ -139,11 +137,6 @@ class Countdown(Static):
         self.query_one("#btn_start").display = display[0]
         self.query_one("#btn_stop").display = display[1]
 
-    @on(StartCount.Started)
-    def handle_timer_start(self) -> None:
-        self.send_notification(title=f"{self.countdown_name}", message="Has started!")
-        self.disable_inputs(inputs_id=["input_name", "input_repeats"], value=True)
-
     @on(StartCount.Finished)
     def handler_timer_end(self) -> None:
         self.notify(f"{self.repeats_left}")
@@ -166,6 +159,8 @@ class Countdown(Static):
             self.start_timer()
         elif id == "btn_stop":
             self.stop_timer()
+        elif id == "btn_reset":
+            self.reset_timer()
         elif id == "btn_delete":
             self.remove()
 
@@ -191,6 +186,8 @@ class Countdown(Static):
             self.start_timer()
         elif key == "p":
             self.stop_timer()
+        elif key == "r":
+            self.reset_timer()
         elif key == "d":
             self.remove()
         elif key == "n":
@@ -199,13 +196,21 @@ class Countdown(Static):
 
     def start_timer(self) -> None:
         startcount = self.query_one(StartCount)
-        self.toggle_buttons_visibility(display=[False, True])
         startcount.start()
+        self.disable_inputs(inputs_id=["input_name", "input_repeats"], value=True)
+        self.toggle_buttons_visibility(display=[False, True])
+        self.send_notification(title=f"{self.countdown_name}", message="Has started!")
 
     def stop_timer(self) -> None:
         startcount = self.query_one(StartCount)
-        self.toggle_buttons_visibility(display=[True, False])
         startcount.stop()
+        self.toggle_buttons_visibility(display=[True, False])
+
+    def reset_timer(self) -> None:
+        startcount = self.query_one(StartCount)
+        startcount.reset()
+        self.toggle_buttons_visibility(display=[True, False])
+        self.disable_inputs(inputs_id=["input_name", "input_repeats"], value=False)
 
 
 class Termout(App):
@@ -214,6 +219,10 @@ class Termout(App):
     CSS_PATH = Path(__file__).parent / "termout.tcss"
     BINDINGS = [
         ("a", "add_countdown", "Add"),
+        ("d", "", "Delete"),
+        ("s", "", "Start"),
+        ("p", "", "Stop"),
+        ("r", "", "Reset"),
     ]
 
     def compose(self) -> ComposeResult:
