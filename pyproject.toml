@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "termout"
+version = "0.1.0"
+description = "A modern TUI countdown app done using Textual"
+dependencies = [
+    "textual",
+    "plyer",
+]
+
+[project.scripts]
+termout = "termout.app:app.run" 
+
+[tool.setuptools]
+packages = ["termout"] 
+
+[tool.setuptools.package-data]
+termout = ["*.tcss"] 

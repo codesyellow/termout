@@ -1,4 +1,3 @@
-from textual import validation
 from textual.app import App, ComposeResult
 from textual.widgets import Footer, Header, Button, Digits, Input, Static
 from textual.reactive import reactive
@@ -7,6 +6,7 @@ from textual.message import Message
 from textual.validation import Integer, Length
 from plyer import notification
 from textual import on, events
+from pathlib import Path
 
 
 class StartCount(Digits):
@@ -211,7 +211,7 @@ class Countdown(Static):
 class Termout(App):
     last_id = 0
 
-    CSS_PATH = "termout.tcss"
+    CSS_PATH = Path(__file__).parent / "termout.tcss"
     BINDINGS = [
         ("a", "add_countdown", "Add"),
     ]
@@ -254,6 +254,6 @@ class Termout(App):
             self.query_one("#input").focus()
 
 
+app = Termout()
 if __name__ == "__main__":
-    app = Termout()
     app.run()
