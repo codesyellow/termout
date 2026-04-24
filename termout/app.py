@@ -219,10 +219,10 @@ class Termout(App):
     CSS_PATH = Path(__file__).parent / "termout.tcss"
     BINDINGS = [
         ("a", "add_countdown", "Add"),
-        ("d", "", "Delete"),
-        ("s", "", "Start"),
-        ("p", "", "Stop"),
-        ("r", "", "Reset"),
+        ("d", "delete_countdown", "Delete"),
+        ("s", "start_countdown", "Start"),
+        ("p", "stop_countdown", "Stop"),
+        ("r", "reset_countdown", "Reset"),
     ]
 
     def compose(self) -> ComposeResult:
