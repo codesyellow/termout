@@ -1,6 +1,6 @@
 from textual.widgets import Digits
 from textual.message import Message
-from utils import str_to_seconds
+from termout.utils import str_to_seconds
 from textual.reactive import reactive
 
 

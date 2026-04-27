@@ -4,9 +4,9 @@ from textual.widgets import Button, Input, Static, Switch
 from textual.reactive import reactive
 from textual.containers import Horizontal
 from textual.validation import Integer, Length
-from utils import send_notification
-from components import StartCount
-from storage import HistoryManager
+from termout.utils import send_notification
+from termout.components import StartCount
+from termout.storage import HistoryManager
 
 
 class Countdown(Static):
@@ -25,7 +25,7 @@ class Countdown(Static):
         ("d", "delete", "Del"),
         ("n", "focus_name", "Name"),
         ("R", "focus_reps", "Reps"),
-        ("M", "focus_switch", "Switch"),
+        ("M", "toggle_switch", "Switch"),
     ]
 
     def action_start(self) -> None:
@@ -51,7 +51,7 @@ class Countdown(Static):
     def action_focus_reps(self) -> None:
         self.query_one("#input_repeats", Input).focus()
 
-    def action_focus_switch(self) -> None:
+    def action_toggle_switch(self) -> None:
         switch = self.query_one(Switch)
         if switch.value:
             switch.value = False
@@ -75,20 +75,14 @@ class Countdown(Static):
         self.is_enabled = enabled
         self.switch_state = switch_state
 
-    def watch_countdown_name(self) -> None:
-        self._update_history()
-
-    def watch_repeats_left(self) -> None:
-        self._update_history()
-
-    def _update_history(self) -> None:
+    def update_info(self, info: list) -> None:
+        """info can be either name or repeats like so: ['name', 'name'] or [repeats], 3"""
         if self.id:
             my_id = self.id.replace("timer_", "")
             history = HistoryManager.load()
 
             if my_id in history.get("timers", {}):
-                history["timers"][my_id]["name"] = self.countdown_name
-                history["timers"][my_id]["repeats"] = self.repeats_left
+                history["timers"][my_id][info[0]] = info[1]
                 HistoryManager.save(history)
 
     def compose(self) -> ComposeResult:
@@ -124,6 +118,8 @@ class Countdown(Static):
                     Integer(minimum=1, maximum=99),
                     Length(minimum=1, maximum=2),
                 ],
+                restrict=r"[0-9]*",
+                max_length=2,
             ),
             classes="input_group",
         )
@@ -136,7 +132,7 @@ class Countdown(Static):
         else:
             timer.stop()
 
-    def disable_inputs(self, inputs_id: list, value: bool) -> None:
+    def toggle_input_status(self, inputs_id: list, value: bool) -> None:
         for id in inputs_id:
             input = self.query_one(f"#{id}", Input)
             input.disabled = value
@@ -144,6 +140,9 @@ class Countdown(Static):
     def toggle_buttons_visibility(self, display: list[bool]) -> None:
         self.query_one("#btn_start").display = display[0]
         self.query_one("#btn_stop").display = display[1]
+
+    def on_focus(self) -> None:
+        self.scroll_visible(animate=False)
 
     @on(StartCount.Finished)
     def handler_timer_end(self) -> None:
@@ -160,7 +159,9 @@ class Countdown(Static):
             )
             self.handle_countdown(cmd="stop")
             self.toggle_buttons_visibility(display=[True, False])
-            self.disable_inputs(inputs_id=["input_name", "input_repeats"], value=False)
+            self.toggle_input_status(
+                inputs_id=["input_name", "input_repeats"], value=False
+            )
             self.has_started = False
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -201,22 +202,27 @@ class Countdown(Static):
         if event.input.id == "input_repeats":
             if event.value.isdigit():
                 self.repeats_left = int(event.value)
+                self.update_info(info=["repeats", event.value])
                 self.notify(f"{self.repeats_left} reps was stored!")
                 self.focus()
         if event.input.id == "input_name":
             self.countdown_name = event.value
+            self.update_info(info=["name", event.value])
             self.notify(f"{self.countdown_name} name was stored!")
             self.focus()
 
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
             if self.query("Input:focus"):
+                input = self.query_one("#input_repeats", Input)
+                if input.value == "":
+                    input.value = str(self.repeats_left)
                 self.focus()
 
     def start_timer(self) -> None:
         startcount = self.query_one(StartCount)
         startcount.start()
-        self.disable_inputs(inputs_id=["input_name", "input_repeats"], value=True)
+        self.toggle_input_status(inputs_id=["input_name", "input_repeats"], value=True)
         self.toggle_buttons_visibility(display=[False, True])
         send_notification(
             title=f"{self.countdown_name}",
@@ -233,4 +239,4 @@ class Countdown(Static):
         startcount = self.query_one(StartCount)
         startcount.reset()
         self.toggle_buttons_visibility(display=[True, False])
-        self.disable_inputs(inputs_id=["input_name", "input_repeats"], value=False)
+        self.toggle_input_status(inputs_id=["input_name", "input_repeats"], value=False)

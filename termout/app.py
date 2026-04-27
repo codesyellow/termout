@@ -3,13 +3,15 @@ from textual.widgets import Footer, Header, Button, Input
 from textual.containers import VerticalScroll
 from textual import events
 from pathlib import Path
-from storage import HistoryManager
-from timer_widget import Countdown
+from termout.storage import HistoryManager
+from termout.timer_widget import Countdown
+from termout.screen import SettingsMenu
 import secrets
 
 
 class Termout(App):
-    last_id = 0
+    history = HistoryManager.load()
+    settings: dict = {}
 
     CSS_PATH = Path(__file__).parent / "termout.tcss"
     BINDINGS = [
@@ -20,24 +22,33 @@ class Termout(App):
         ("d", "delete_countdown", "Del"),
         ("n", "focus_input_name", "Name"),
         ("R", "focus_input_repeats", "Reps"),
-        ("M", "focus_swtich", "Switch"),
+        ("M", "toggle_switch", "Switch"),
+        ("c", "show_settings", "Config"),
     ]
 
     def on_mount(self) -> None:
-        history = HistoryManager.load()
+        history = self.history
         container = self.query_one("#countdowns")
 
         timers_dict = history.get("timers", {})
+        self.settings = history.get("settings", {})
 
-        for timer_id, info in timers_dict.items():
-            new_timer = Countdown(
-                value=info["time"],
-                name=info["name"],
-                repeats=info["repeats"],
-                switch_state=info["enabled"],
-                id=f"timer_{timer_id}",
-            )
-            container.mount(new_timer)
+        if len(timers_dict) > 0:
+            id_to_focus = ""
+            for timer_id, info in timers_dict.items():
+                new_timer = Countdown(
+                    value=info["time"],
+                    name=info["name"],
+                    repeats=info["repeats"],
+                    switch_state=info["enabled"],
+                    id=f"timer_{timer_id}",
+                )
+
+                container.mount(new_timer)
+                if id_to_focus == "":
+                    id_to_focus = f"timer_{timer_id}"
+
+            self.query_one(f"#{id_to_focus}").focus()
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -51,16 +62,37 @@ class Termout(App):
         my_input.display = True
         my_input.focus()
 
+    def action_show_settings(self):
+        self.push_screen(SettingsMenu())
+
     def on_key(self, event: events.Key) -> None:
         my_input = self.query_one("#input", Input)
         key = event.key.lower()
+
         if key == "escape":
             if my_input.has_focus:
                 my_input.display = False
-        elif key == "k":
-            self.screen.focus_previous(Countdown)
-        elif key == "j":
+        elif key == "k" or key == "up":
+            self.move(pos="up")
+        elif key == "j" or key == "down":
+            self.move(pos="down")
+
+    def move(self, pos: str) -> None:
+        timers = list(self.query(Countdown))
+        if not timers:
+            return
+
+        last_timer = timers[-1]
+        first_timer = timers[0]
+
+        if pos == "down":
+            if last_timer.has_focus:
+                return
             self.screen.focus_next(Countdown)
+        elif pos == "up":
+            if first_timer.has_focus:
+                return
+            self.screen.focus_previous(Countdown)
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         if event.input.id == "input":

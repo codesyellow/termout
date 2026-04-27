@@ -118,8 +118,30 @@ StartCount {
     color: $bg;
 }
 
+#add:hover {
+  background: $hover;
+}
+
 #input {
     width: 20;
 }
 
 .inactive { display: none; }
+
+#menu {
+    layout: grid;
+    grid-size: 2;        
+    grid-columns: 22 1fr; 
+    grid-rows: auto auto;
+    background: $bg;
+    border: round $secondary;
+    margin: 0 0 1 0;
+    height: auto;    
+    padding: 1;
+    align: center middle;
+}
+
+#menu_title {
+  column-span: 2;
+  text-align: center;
+}
