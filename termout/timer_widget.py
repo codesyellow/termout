@@ -10,13 +10,13 @@ from termout.storage import HistoryManager
 
 
 class Countdown(Static):
-    countdown_name = reactive("Name")
-    repeats_left = reactive(1)
-    is_enabled = reactive(True)
-    switch_state = False
-    has_started = False
-    can_focus_children = False
-    can_focus = True
+    countdown_name: reactive = reactive("Name")
+    repeats_left: reactive = reactive(1)
+    is_enabled: reactive = reactive(True)
+    switch_state: bool = False
+    has_started: bool = False
+    can_focus_children: bool = False
+    can_focus: bool = True
 
     BINDINGS = [
         ("s", "start", "Start"),
@@ -71,7 +71,7 @@ class Countdown(Static):
 
         self.value = value
         self.countdown_name = name
-        self.repeats_left = repeats
+        self.repeats_left = int(repeats)
         self.is_enabled = enabled
         self.switch_state = switch_state
 
@@ -202,7 +202,7 @@ class Countdown(Static):
         if event.input.id == "input_repeats":
             if event.value.isdigit():
                 self.repeats_left = int(event.value)
-                self.update_info(info=["repeats", event.value])
+                self.update_info(info=["repeats", self.repeats_left])
                 self.notify(f"{self.repeats_left} reps was stored!")
                 self.focus()
         if event.input.id == "input_name":
